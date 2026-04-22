@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: compression-service
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+compression:
+  ffmpeg:
+    path: /usr/bin/ffmpeg # Default path, configurable
+  storage:
+    temp-dir: /tmp/compression-service
