@@ -31,7 +31,7 @@ public class FileStorageUtil {
         String originalFilename = file.getOriginalFilename();
         String extension = getExtension(originalFilename);
         
-        String uniqueFilename = UUID.randomUUID().toString() + extension;
+        String uniqueFilename = UUID.randomUUID() + extension;
         Path targetLocation = getTempDir().resolve(uniqueFilename);
 
         log.debug("Saving temporary file to: {}", targetLocation);
@@ -47,7 +47,7 @@ public class FileStorageUtil {
      * @return Path for the output file
      */
     public Path generateOutputFilePath(String extension) {
-        String uniqueFilename = "out_" + UUID.randomUUID().toString() + (extension.startsWith(".") ? extension : "." + extension);
+        String uniqueFilename = "out_" + UUID.randomUUID() + (extension.startsWith(".") ? extension : "." + extension);
         return getTempDir().resolve(uniqueFilename);
     }
 
