@@ -1,5 +1,6 @@
 package compression_service.service;
 
+import compression_service.exception.CompressionException;
 import compression_service.util.FFmpegUtil;
 import compression_service.util.FileStorageUtil;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,12 @@ public class AudioCompressionServiceImpl implements AudioCompressionService {
     public Resource compress(MultipartFile file, String bitrate) {
         log.info("Received request to compress audio file: {} to bitrate: {}", file.getOriginalFilename(), bitrate);
         
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("Uploaded file cannot be empty.");
+        }
+        
         Path inputPath = null;
-        Path outputPath = null;
+        Path outputPath;
 
         try {
             // 1. Save uploaded file to temporary storage
@@ -46,7 +51,7 @@ public class AudioCompressionServiceImpl implements AudioCompressionService {
             if (!success) {
                 // If compression failed, clean up the output file (if it was partially created)
                 fileStorageUtil.deleteFile(outputPath);
-                throw new RuntimeException("FFmpeg compression failed. Check logs for details.");
+                throw new CompressionException("FFmpeg compression failed. Check logs for details.");
             }
 
             // 4. Return the compressed file as a Resource
@@ -56,7 +61,7 @@ public class AudioCompressionServiceImpl implements AudioCompressionService {
 
         } catch (IOException e) {
             log.error("Failed to handle file storage during compression", e);
-            throw new RuntimeException("File IO error during compression", e);
+            throw new CompressionException("File IO error during compression: " + e.getMessage(), e);
         } finally {
             // 5. Clean up temporary input file immediately
             if (inputPath != null) {
