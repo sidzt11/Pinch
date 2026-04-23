@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  compression-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount a local directory into the container's temp storage for easy inspection of files
+      # This is optional but very useful for debugging during development
+      - ./temp-data:/tmp/compression-service
+    environment:
+      # Override application properties here if needed
+      - SPRING_PROFILES_ACTIVE=docker

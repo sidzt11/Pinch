@@ -1,0 +1,9 @@
+# This profile is activated when running inside Docker
+# It overrides the default ffmpeg path to the one installed in the container
+
+compression:
+  ffmpeg:
+    path: /usr/bin/ffmpeg
+  storage:
+    # The temp-dir path remains the same, but it will now point inside the container
+    temp-dir: /tmp/compression-service
