@@ -2,13 +2,13 @@
 
 This is the media compression microservice for the Pinch project. It is a Spring Boot application that acts as a wrapper around the FFmpeg binary, providing a simple, production-ready REST API for compressing media files.
 
-Currently, the service supports **Audio Compression** (converting to MP3 format).
+Currently, the service supports **Audio** and **Video** compression.
 
 ---
 
 ## 🚀 Features (Phase 1)
-- **Audio Compression API**: Upload an audio file (e.g., `.wav`, `.m4a`) and compress it to `.mp3`.
-- **Configurable Bitrate**: Specify the target bitrate (default is `128k`).
+- **Audio Compression API**: Upload an audio file (e.g., `.wav`, `.m4a`) and compress it to `.mp3` with configurable bitrate.
+- **Video Compression API**: Upload a video file (e.g., `.mov`, `.mkv`) and compress it to `.mp4` (H.264) with configurable CRF quality control.
 - **External FFmpeg Execution**: Uses Java's `ProcessBuilder` to run FFmpeg natively for maximum performance.
 - **Robust Error Handling**: Standardized JSON error responses and safe temporary file cleanup.
 - **Docker Ready**: Fully containerized setup with FFmpeg baked into the runtime image.
@@ -83,8 +83,29 @@ curl -X POST http://localhost:8080/api/v1/compress/audio \
   -F "bitrate=128k" --output compressed_audio.mp3
 ```
 
-**Responses:**
-- `200 OK`: Returns the compressed `.mp3` file stream as an attachment.
+### 2. Compress Video
+Upload a video file to compress it to MP4 (H.264 video, AAC audio) format.
+
+**Endpoint:** `POST /api/v1/compress/video`
+
+**Content-Type:** `multipart/form-data`
+
+**Request Parameters:**
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :---: | :---: | :--- |
+| `file` | File (Multipart) | Yes | - | The source video file to compress. |
+| `crf` | String | No | `28` | Constant Rate Factor (CRF) for video quality control. Lower values (e.g., 18) mean higher quality/larger file size, higher values (e.g., 32) mean lower quality/smaller file size. |
+
+**cURL Example:**
+```bash
+curl -X POST http://localhost:8080/api/v1/compress/video \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@/path/to/your/video.mov" \
+  -F "crf=28" --output compressed_video.mp4
+```
+
+**Responses (Common):**
+- `200 OK`: Returns the compressed file stream as an attachment.
 - `400 Bad Request`: If the uploaded file is empty or invalid.
 - `413 Payload Too Large`: If the file exceeds the 500MB size limit.
 - `500 Internal Server Error`: If FFmpeg processing fails or a file I/O error occurs.
@@ -103,7 +124,7 @@ The project strictly follows a clean architecture:
 ---
 
 ## 🔮 Future Roadmap (Phase 2 & 3)
-- **Video Compression**: Implementing H.264/libx264 endpoints with configurable CRF (quality) presets.
 - **Asynchronous Processing**: Moving from synchronous HTTP requests to Job IDs and status polling endpoints.
+- **Output File Cleanup**: Implementing a scheduled task to clean up old compressed files from disk.
 - **Queue Integration**: Future readiness for Kafka/RabbitMQ.
 - **Cloud Storage**: Seamless transition from local file storage to S3.
