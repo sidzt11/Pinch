@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -20,6 +21,10 @@ public class AudioCompressionServiceImpl implements AudioCompressionService {
 
     private final FileStorageUtil fileStorageUtil;
     private final FFmpegUtil ffmpegUtil;
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
+            "audio/mpeg", "audio/wav", "audio/x-wav", "audio/wave", "audio/vnd.wave",
+            "audio/aac", "audio/mp4", "audio/flac", "audio/ogg", "audio/vorbis"
+    );
 
     @Override
     public Resource compress(MultipartFile file, String bitrate) {
