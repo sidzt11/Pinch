@@ -69,4 +69,14 @@ public class AudioCompressionServiceImpl implements AudioCompressionService {
             }
         }
     }
+
+    private void validateFile(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("Uploaded file cannot be empty.");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Invalid file type. Please upload a valid audio file. Received: " + contentType);
+        }
+    }
 }
