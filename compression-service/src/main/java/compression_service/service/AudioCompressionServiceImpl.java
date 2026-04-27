@@ -25,9 +25,7 @@ public class AudioCompressionServiceImpl implements AudioCompressionService {
     public Resource compress(MultipartFile file, String bitrate) {
         log.info("Received request to compress audio file: {} to bitrate: {}", file.getOriginalFilename(), bitrate);
         
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("Uploaded file cannot be empty.");
-        }
+        validateFile(file);
         
         Path inputPath = null;
         Path outputPath;
@@ -40,30 +38,25 @@ public class AudioCompressionServiceImpl implements AudioCompressionService {
             outputPath = fileStorageUtil.generateOutputFilePath(".mp3");
 
             // 3. Build and execute FFmpeg process
-            // Example arguments for MP3 compression: -c:a libmp3lame -b:a 128k
             String[] options = {
                     "-c:a", "libmp3lame",
-                    "-b:a", bitrate
+                    "-b:a", bitrate,
+                    "-threads", "0"
             };
 
             boolean success = ffmpegUtil.compressMedia(inputPath, outputPath, options);
 
             if (!success) {
-                // If compression failed, clean up the output file (if it was partially created)
                 fileStorageUtil.deleteFile(outputPath);
                 throw new CompressionException("FFmpeg compression failed. Check logs for details.");
             }
 
-            // 4. Return the compressed file as a Resource
-            // Note: The output file is left on disk to be streamed to the client.
-            // A scheduled task (Phase 2) should clean up old output files.
             return new FileSystemResource(outputPath);
 
         } catch (IOException e) {
             log.error("Failed to handle file storage during compression", e);
             throw new CompressionException("File IO error during compression: " + e.getMessage(), e);
         } finally {
-            // 5. Clean up temporary input file immediately
             if (inputPath != null) {
                 fileStorageUtil.deleteFile(inputPath);
             }
