@@ -1,0 +1,9 @@
+# This profile is activated when running the service locally without Docker.
+# It allows overriding configuration for a local development environment.
+
+compression:
+  ffmpeg:
+    # IMPORTANT: Update this path to point to the FFmpeg executable on your local machine.
+    # Example for Windows: C:/ffmpeg/bin/ffmpeg.exe
+    # Example for macOS/Linux (if installed via Homebrew/apt): /usr/local/bin/ffmpeg or /usr/bin/ffmpeg
+    path: C:\Users\name\path\to\ffmpeg.exe
